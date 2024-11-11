@@ -1,4 +1,4 @@
-package rbtree
+package tree
 
 /*
 Instantiate1 returns the following sample tree:

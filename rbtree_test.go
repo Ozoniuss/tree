@@ -1,4 +1,4 @@
-package rbtree
+package tree
 
 // func Test_lrot(t *testing.T) {
 // 	root := instantiate1()
