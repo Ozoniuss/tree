@@ -14,8 +14,21 @@ type BstNode[T comparable] struct {
 	Root  *BstNode[T] // may be removed later if not useful in algorithms
 }
 
-func NewBST[T comparable](Key T, opts ...BstreeOpt[T]) *BstNode[T] {
-	return nil
+func NewBST[T comparable](key T, opts ...BstreeOpt[T]) *BstNode[T] {
+	root := &BstNode[T]{
+		Left:  nil,
+		Right: nil,
+		P:     nil,
+		Key:   key,
+		Root:  nil,
+	}
+	root.Root = root
+
+	for _, o := range opts {
+		o(root)
+	}
+
+	return root
 }
 
 // Format returns a string representation of the tree, based on its layout.
@@ -100,6 +113,8 @@ func (n *BstNode[T]) formatLinuxTree(prefix string, parent *BstNode[T], isRoot b
 }
 
 type BstreeOpt[T comparable] func(n *BstNode[T])
+
+// for now behaviour is undefined for options below
 
 func WithLeftChild[T comparable](c *BstNode[T]) BstreeOpt[T] {
 	return func(n *BstNode[T]) {
