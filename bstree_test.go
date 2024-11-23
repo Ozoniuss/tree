@@ -66,24 +66,27 @@ func printNodes[T comparable]() (*string, func(n *BstNode[T])) {
 
 func TestTreeTraversals(t *testing.T) {
 	type testCase struct {
-		rootNode     *BstNode[int]
-		inorderStr   string
-		preorderStr  string
-		postorderStr string
+		rootNode      *BstNode[int]
+		inorderStr    string
+		preorderStr   string
+		postorderStr  string
+		levelorderStr string
 	}
 
 	testcases := []testCase{
 		{
-			rootNode:     nil,
-			inorderStr:   "",
-			preorderStr:  "",
-			postorderStr: "",
+			rootNode:      nil,
+			inorderStr:    "",
+			preorderStr:   "",
+			postorderStr:  "",
+			levelorderStr: "",
 		},
 		{
-			rootNode:     Instantiate1Bst(),
-			inorderStr:   "2 5 6 8 9 10 12",
-			preorderStr:  "5 2 10 8 6 9 12",
-			postorderStr: "2 6 9 8 12 10 5",
+			rootNode:      Instantiate1Bst(),
+			inorderStr:    "2 5 6 8 9 10 12",
+			preorderStr:   "5 2 10 8 6 9 12",
+			postorderStr:  "2 6 9 8 12 10 5",
+			levelorderStr: "5 2 10 8 12 6 9",
 		},
 	}
 
@@ -91,17 +94,22 @@ func TestTreeTraversals(t *testing.T) {
 		outInorder, printInorder := printNodes[int]()
 		outPreorder, printPreorder := printNodes[int]()
 		outPostorder, printPostorder := printNodes[int]()
+		outLevelorder, printLevelorder := printNodes[int]()
 		tc.rootNode.TraverseInorder(printInorder)
 		if *outInorder != tc.inorderStr {
-			t.Errorf("expected:(%s) got:(%s)", tc.inorderStr, *outInorder)
+			t.Errorf("[inorder] expected:(%s) got:(%s)", tc.inorderStr, *outInorder)
 		}
 		tc.rootNode.TraversePostorder(printPostorder)
 		if *outPostorder != tc.postorderStr {
-			t.Errorf("expected:(%s) got:(%s)", tc.inorderStr, *outPostorder)
+			t.Errorf("[postorder] expected:(%s) got:(%s)", tc.postorderStr, *outPostorder)
 		}
 		tc.rootNode.TraversePreorder(printPreorder)
 		if *outPreorder != tc.preorderStr {
-			t.Errorf("expected:(%s) got:(%s)", tc.inorderStr, *outPreorder)
+			t.Errorf("[preorder] expected:(%s) got:(%s)", tc.preorderStr, *outPreorder)
+		}
+		tc.rootNode.TraverseLevelorder(printLevelorder)
+		if *outLevelorder != tc.levelorderStr {
+			t.Errorf("[levelorder] expected:(%s) got:(%s)", tc.levelorderStr, *outLevelorder)
 		}
 	}
 }
