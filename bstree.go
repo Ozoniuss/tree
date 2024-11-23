@@ -29,6 +29,8 @@ func (n *BstNode[T]) Format(layout string) string {
 	return strings.TrimRight(out, "\n")
 }
 
+// TraverseInorder traverses the tree using an inorder traversal, applying the
+// supplied function to each node.
 func (n *BstNode[T]) TraverseInorder(f func(*BstNode[T])) {
 	if n == nil {
 		return
@@ -36,6 +38,28 @@ func (n *BstNode[T]) TraverseInorder(f func(*BstNode[T])) {
 	n.Left.TraverseInorder(f)
 	f(n)
 	n.Right.TraverseInorder(f)
+}
+
+// TraversePreorder traverses the tree using an inorder traversal, applying the
+// supplied function to each node.
+func (n *BstNode[T]) TraversePreorder(f func(*BstNode[T])) {
+	if n == nil {
+		return
+	}
+	f(n)
+	n.Left.TraversePreorder(f)
+	n.Right.TraversePreorder(f)
+}
+
+// TraversePostorder traverses the tree using an inorder traversal, applying the
+// supplied function to each node.
+func (n *BstNode[T]) TraversePostorder(f func(*BstNode[T])) {
+	if n == nil {
+		return
+	}
+	n.Left.TraversePostorder(f)
+	n.Right.TraversePostorder(f)
+	f(n)
 }
 
 func (n *BstNode[T]) formatLinuxTree(prefix string, parent *BstNode[T], isRoot bool) string {
