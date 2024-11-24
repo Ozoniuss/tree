@@ -1,5 +1,3 @@
-# Red Black Tree
+# Tree
 
-This implements a Red Black Tree in Golang, which is the data structure used to implement `unordered_set` and `unordered_multiset` in C++. This is still a work in progress.
-
-Based on the specification from [this book](https://www.amazon.com/Introduction-Algorithms-3rd-MIT-Press/dp/0262033844)
+An idiomatic, standard library compatible implementation of various Binary Search Trees in Golang. Designed with simplicity in mind, oriented towards competitive programming or the implementation of other data structures such as ordered sets and ordered multisets.
