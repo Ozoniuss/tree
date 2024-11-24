@@ -2,6 +2,7 @@ package tree
 
 import (
 	"fmt"
+	"iter"
 	"strings"
 )
 
@@ -29,6 +30,46 @@ func NewBST[T comparable](key T, opts ...BstreeOpt[T]) *BstNode[T] {
 	}
 
 	return root
+}
+
+// Values returns a DFS (preorder) iterator over values in the tree.
+func (n *BstNode[T]) Values() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		var traverse func(nd *BstNode[T]) bool
+		traverse = func(nd *BstNode[T]) bool {
+			if nd == nil {
+				return true
+			}
+			if !yield(nd.Key) {
+				return false
+			}
+			if !traverse(nd.Left) {
+				return false
+			}
+			return traverse(nd.Right)
+		}
+		traverse(n)
+	}
+}
+
+// All returns a DFS (preorder) iterator over nodes in the tree.
+func (n *BstNode[T]) All() iter.Seq[*BstNode[T]] {
+	return func(yield func(*BstNode[T]) bool) {
+		var traverse func(nd *BstNode[T]) bool
+		traverse = func(nd *BstNode[T]) bool {
+			if nd == nil {
+				return true
+			}
+			if !yield(nd) {
+				return false
+			}
+			if !traverse(nd.Left) {
+				return false
+			}
+			return traverse(nd.Right)
+		}
+		traverse(n)
+	}
 }
 
 // Format returns a string representation of the tree, based on its layout.
