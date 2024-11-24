@@ -12,7 +12,6 @@ type BstNode[T comparable] struct {
 	Right *BstNode[T]
 	P     *BstNode[T]
 	Key   T
-	Root  *BstNode[T] // may be removed later if not useful in algorithms
 }
 
 func NewBST[T comparable](key T, opts ...BstreeOpt[T]) *BstNode[T] {
@@ -21,9 +20,7 @@ func NewBST[T comparable](key T, opts ...BstreeOpt[T]) *BstNode[T] {
 		Right: nil,
 		P:     nil,
 		Key:   key,
-		Root:  nil,
 	}
-	root.Root = root
 
 	for _, o := range opts {
 		o(root)
@@ -209,7 +206,6 @@ func WithLeftChild[T comparable](c *BstNode[T]) BstreeOpt[T] {
 	return func(n *BstNode[T]) {
 		n.Left = c
 		c.P = n
-		c.Root = n.Root
 	}
 }
 
@@ -217,6 +213,5 @@ func WithRightChild[T comparable](c *BstNode[T]) BstreeOpt[T] {
 	return func(n *BstNode[T]) {
 		n.Right = c
 		c.P = n
-		c.Root = n.Root
 	}
 }
