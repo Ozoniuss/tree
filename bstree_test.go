@@ -113,3 +113,53 @@ func TestTreeTraversals(t *testing.T) {
 		}
 	}
 }
+
+func TestEquals(t *testing.T) {
+	type testCase struct {
+		name  string
+		tree1 *BstNode[int]
+		tree2 *BstNode[int]
+		equal bool
+	}
+
+	testcases := []testCase{
+		{
+			name:  "equal sample trees 1",
+			tree1: Instantiate1Bst(),
+			tree2: Instantiate1Bst(),
+			equal: true,
+		},
+		{
+			name:  "fairly different trees",
+			tree1: Instantiate1Bst(),
+			tree2: Instantiate2Bst(),
+			equal: false,
+		},
+		{
+			name:  "equal sample trees 2",
+			tree1: Instantiate2Bst(),
+			tree2: Instantiate2Bst(),
+			equal: true,
+		},
+		{
+			name:  "equal nil trees",
+			tree1: nil,
+			tree2: nil,
+			equal: true,
+		},
+		{
+			name:  "empty tree with nil tree",
+			tree1: nil,
+			tree2: &BstNode[int]{},
+			equal: false,
+		},
+		// TODO: comparisons with equal elements but different shape,
+		// and equal shapes but different elements.
+	}
+
+	for _, tc := range testcases {
+		if tc.equal != Equal(tc.tree1, tc.tree2) {
+			t.Errorf("failed tree comparison for: %s", tc.name)
+		}
+	}
+}

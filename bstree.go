@@ -72,6 +72,31 @@ func (n *BstNode[T]) All() iter.Seq[*BstNode[T]] {
 	}
 }
 
+// Equal reports whether two trees are equal, checking that their structure and
+// elements are identical.
+func Equal[T comparable](t1, t2 *BstNode[T]) bool {
+	if t1 == nil && t2 == nil {
+		return true
+	}
+	if t1 == nil && t2 != nil {
+		return false
+	}
+	if t1 != nil && t2 == nil {
+		return false
+	}
+
+	if t1.Key != t2.Key {
+		return false
+	}
+	if !Equal(t1.Left, t2.Left) {
+		return false
+	}
+	if !Equal(t1.Right, t2.Right) {
+		return false
+	}
+	return true
+}
+
 // Format returns a string representation of the tree, based on its layout.
 func (n *BstNode[T]) Format(layout string) string {
 
