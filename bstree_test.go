@@ -57,9 +57,9 @@ func printNodes[T comparable]() (*string, func(n *BstNode[T])) {
 	out := ""
 	return &out, func(n *BstNode[T]) {
 		if out == "" {
-			out = fmt.Sprint(n.Key)
+			out = fmt.Sprint(n.Value)
 		} else {
-			out = fmt.Sprintf("%s %v", out, n.Key)
+			out = fmt.Sprintf("%s %v", out, n.Value)
 		}
 	}
 }

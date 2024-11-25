@@ -11,15 +11,15 @@ type BstNode[T comparable] struct {
 	Left  *BstNode[T]
 	Right *BstNode[T]
 	P     *BstNode[T]
-	Key   T
+	Value T
 }
 
-func NewBST[T comparable](key T, opts ...BstreeOpt[T]) *BstNode[T] {
+func NewBST[T comparable](val T, opts ...BstreeOpt[T]) *BstNode[T] {
 	root := &BstNode[T]{
 		Left:  nil,
 		Right: nil,
 		P:     nil,
-		Key:   key,
+		Value: val,
 	}
 
 	for _, o := range opts {
@@ -37,7 +37,7 @@ func (n *BstNode[T]) Values() iter.Seq[T] {
 			if nd == nil {
 				return true
 			}
-			if !yield(nd.Key) {
+			if !yield(nd.Value) {
 				return false
 			}
 			if !traverse(nd.Left) {
@@ -82,7 +82,7 @@ func Equal[T comparable](t1, t2 *BstNode[T]) bool {
 		return false
 	}
 
-	if t1.Key != t2.Key {
+	if t1.Value != t2.Value {
 		return false
 	}
 	if !Equal(t1.Left, t2.Left) {
@@ -184,12 +184,12 @@ func (n *BstNode[T]) formatLinuxTree(prefix string, parent *BstNode[T], isRoot b
 	newprefix := prefix
 
 	if isRoot {
-		out += fmt.Sprintf("%v\n", n.Key)
+		out += fmt.Sprintf("%v\n", n.Value)
 	} else if n == n.P.Left {
-		out += fmt.Sprintf("%s%s %v\n", prefix, PREFIX_LEFT, n.Key)
+		out += fmt.Sprintf("%s%s %v\n", prefix, PREFIX_LEFT, n.Value)
 		newprefix = prefix + EXTRA_LEFT
 	} else if n == n.P.Right {
-		out += fmt.Sprintf("%s%s %v\n", prefix, PREFIX_RIGHT, n.Key)
+		out += fmt.Sprintf("%s%s %v\n", prefix, PREFIX_RIGHT, n.Value)
 		newprefix = prefix + EXTRA_RIGHT
 	}
 
