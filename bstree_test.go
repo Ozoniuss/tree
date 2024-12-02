@@ -164,3 +164,14 @@ func TestEquals(t *testing.T) {
 		}
 	}
 }
+
+func TestInsertEmptyTree(t *testing.T) {
+	var root = &BstNode[int]{}
+	Insert(root, 10)
+	if root.Size != 1 {
+		t.Errorf("expected size to be 1, got %d", root.Size)
+	}
+	if root.Value != 10 {
+		t.Errorf("expected root to have value %v, got %v", 10, root.Value)
+	}
+}

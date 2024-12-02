@@ -13,6 +13,7 @@ type BstNode[T cmp.Ordered] struct {
 	Right *BstNode[T]
 	P     *BstNode[T]
 	Value T
+	Size  int // size of the actual subtree
 }
 
 func NewBST[T cmp.Ordered](val T, opts ...BstreeOpt[T]) *BstNode[T] {
@@ -21,6 +22,7 @@ func NewBST[T cmp.Ordered](val T, opts ...BstreeOpt[T]) *BstNode[T] {
 		Right: nil,
 		P:     nil,
 		Value: val,
+		Size:  1,
 	}
 
 	for _, o := range opts {
@@ -31,7 +33,7 @@ func NewBST[T cmp.Ordered](val T, opts ...BstreeOpt[T]) *BstNode[T] {
 }
 
 // Values returns a DFS (preorder) iterator over values in the tree.
-func (n *BstNode[T]) Values() iter.Seq[T] {
+func Values[T cmp.Ordered](n *BstNode[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		var traverse func(nd *BstNode[T]) bool
 		traverse = func(nd *BstNode[T]) bool {
@@ -51,7 +53,7 @@ func (n *BstNode[T]) Values() iter.Seq[T] {
 }
 
 // All returns a DFS (preorder) iterator over nodes in the tree.
-func (n *BstNode[T]) All() iter.Seq[*BstNode[T]] {
+func All[T cmp.Ordered](n *BstNode[T]) iter.Seq[*BstNode[T]] {
 	return func(yield func(*BstNode[T]) bool) {
 		var traverse func(nd *BstNode[T]) bool
 		traverse = func(nd *BstNode[T]) bool {
@@ -67,6 +69,56 @@ func (n *BstNode[T]) All() iter.Seq[*BstNode[T]] {
 			return traverse(nd.Right)
 		}
 		traverse(n)
+	}
+}
+
+// Insert adds a new element to the binary search tree, whilst preserving its
+// binary-search-tree property.
+func Insert[T cmp.Ordered](root *BstNode[T], value T) {
+
+	if root == nil {
+		panic("tree not initialized")
+	}
+
+	// Currently undefined behaviour.
+	if root.P != nil {
+		panic("called insert on non-root node")
+	}
+
+	if root.Size == 0 {
+		root.Value = value
+		root.Size = 1
+		return
+	}
+
+	var y *BstNode[T] = nil
+	c := root
+
+	for c != nil {
+		y = c
+		if value < c.Value {
+			c = c.Left
+		} else if value > c.Value {
+			c = c.Right
+		} else if value == c.Value {
+			return
+		}
+	}
+
+	// Will definitely have an insert at this point, increase size.
+	root.Size += 1
+
+	if value < y.Value {
+		y.Left = &BstNode[T]{
+			P:     y,
+			Value: value,
+		}
+		// Note that it's not possible to have equality so this is exhaustive
+	} else {
+		y.Right = &BstNode[T]{
+			P:     y,
+			Value: value,
+		}
 	}
 }
 
