@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"cmp"
 	"fmt"
 	"testing"
 )
@@ -53,7 +54,7 @@ func TestFormatLinuxTree(t *testing.T) {
 	}
 }
 
-func printNodes[T comparable]() (*string, func(n *BstNode[T])) {
+func printNodes[T cmp.Ordered]() (*string, func(n *BstNode[T])) {
 	out := ""
 	return &out, func(n *BstNode[T]) {
 		if out == "" {

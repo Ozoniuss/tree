@@ -1,20 +1,21 @@
 package tree
 
 import (
+	"cmp"
 	"fmt"
 	"iter"
 	"strings"
 )
 
 // BstNode represents a regular binary search tree node.
-type BstNode[T comparable] struct {
+type BstNode[T cmp.Ordered] struct {
 	Left  *BstNode[T]
 	Right *BstNode[T]
 	P     *BstNode[T]
 	Value T
 }
 
-func NewBST[T comparable](val T, opts ...BstreeOpt[T]) *BstNode[T] {
+func NewBST[T cmp.Ordered](val T, opts ...BstreeOpt[T]) *BstNode[T] {
 	root := &BstNode[T]{
 		Left:  nil,
 		Right: nil,
@@ -71,7 +72,7 @@ func (n *BstNode[T]) All() iter.Seq[*BstNode[T]] {
 
 // Equal reports whether two trees are equal, checking that their structure and
 // elements are identical.
-func Equal[T comparable](t1, t2 *BstNode[T]) bool {
+func Equal[T cmp.Ordered](t1, t2 *BstNode[T]) bool {
 	if t1 == nil && t2 == nil {
 		return true
 	}
@@ -198,18 +199,18 @@ func (n *BstNode[T]) formatLinuxTree(prefix string, parent *BstNode[T], isRoot b
 	return out
 }
 
-type BstreeOpt[T comparable] func(n *BstNode[T])
+type BstreeOpt[T cmp.Ordered] func(n *BstNode[T])
 
 // for now behaviour is undefined for options below
 
-func WithLeftChild[T comparable](c *BstNode[T]) BstreeOpt[T] {
+func WithLeftChild[T cmp.Ordered](c *BstNode[T]) BstreeOpt[T] {
 	return func(n *BstNode[T]) {
 		n.Left = c
 		c.P = n
 	}
 }
 
-func WithRightChild[T comparable](c *BstNode[T]) BstreeOpt[T] {
+func WithRightChild[T cmp.Ordered](c *BstNode[T]) BstreeOpt[T] {
 	return func(n *BstNode[T]) {
 		n.Right = c
 		c.P = n
