@@ -46,7 +46,7 @@ func TestFormatLinuxTree(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		out := tc.rootNode.Format(FormatLinuxTree)
+		out := tc.rootNode.Format("FormatLinuxTree")
 		if out != tc.repr {
 			t.Errorf("expected:\n%s (len: %d)\ngot:\n%s (len: %d)", tc.repr, len(tc.repr), out, len(out))
 		}
