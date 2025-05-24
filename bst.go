@@ -18,6 +18,12 @@ func NewBST[T cmp.Ordered]() *BST[T] {
 }
 
 func (t *BST[T]) Root() Node[T] {
+	if t == nil {
+		panic("root: nil tree")
+	}
+	if t.root == nil {
+		return nil
+	}
 	return t.root
 }
 func (t *BST[T]) Size() int {
@@ -36,7 +42,7 @@ func (t *BST[T]) Insert(value T) error {
 		return nil
 	}
 
-	var y *BSTNode[T]
+	var y *BSTNode[T] = nil
 	c := t.root
 	for c != nil {
 		y = c
@@ -96,17 +102,41 @@ type BSTNode[T cmp.Ordered] struct {
 }
 
 func (n *BSTNode[T]) Parent() Node[T] {
+	if n == nil {
+		panic("parent: nil node")
+	}
+	if n.parent == nil {
+		return nil
+	}
 	return n.parent
 }
 func (n *BSTNode[T]) Left() Node[T] {
+	if n == nil {
+		panic("left: nil node")
+	}
+	if n.left == nil {
+		return nil
+	}
 	return n.left
 }
 func (n *BSTNode[T]) Right() Node[T] {
+	if n == nil {
+		panic("right: nil node")
+	}
+	if n.right == nil {
+		return nil
+	}
 	return n.right
 }
 func (n *BSTNode[T]) Value() T {
+	if n == nil {
+		panic("value: nil node")
+	}
 	return n.value
 }
 func (n *BSTNode[T]) Count() int {
+	if n == nil {
+		panic("count: nil node")
+	}
 	return 1
 }
