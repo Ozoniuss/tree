@@ -74,11 +74,70 @@ func (t *BST[T]) Insert(value T) error {
 }
 
 func (t *BST[T]) Delete(value T) error {
-	panic("unimplemented")
+	if t == nil {
+		panic("delete: nil tree")
+	}
+	if t.root == nil {
+		return fmt.Errorf("value not found")
+	}
+
+	// find node with that value
+	z := t.root
+	for z != nil {
+		if value < z.value {
+			z = z.left
+		} else if value > z.value {
+			z = z.right
+		} else if value == z.value {
+			break
+		}
+	}
+	if z == nil {
+		return fmt.Errorf("value not found")
+	}
+
+	if z.left == nil {
+		transplant(t, z, z.right)
+		return nil
+	} else if z.right == nil {
+		transplant(t, z, z.left)
+		return nil
+	}
+
+	y := treeMinimum(z.right)
+	if y.parent != z {
+		transplant(t, y, y.right)
+		y.right = z.right
+		y.right.parent = y
+	}
+	transplant(t, z, y)
+	y.left = z.left
+	y.left.parent = y
+
+	return nil
 }
 
-func (t *BST[T]) MustInsert(value T) {
-	t.Insert(value)
+// transplant replaces one subtree with another subtree
+func transplant[T cmp.Ordered](t *BST[T], u *BSTNode[T], v *BSTNode[T]) {
+	// u is root
+	if u.parent == nil {
+		t.root = v
+	} else if u == u.parent.left {
+		u.parent.left = v
+	} else {
+		u.parent.right = v
+	}
+	if v != nil {
+		v.parent = u.parent
+	}
+}
+
+func treeMinimum[T cmp.Ordered](x *BSTNode[T]) *BSTNode[T] {
+	y := x
+	for y.left != nil {
+		y = y.left
+	}
+	return y
 }
 
 func (t *BST[T]) Count(value T) int {
