@@ -26,13 +26,11 @@ func main() {
 	t.Insert(11)
 	t.Insert(13)
 
-	fmt.Println(tree.FormatTree(t))
+	fmt.Println(tree.FormatTree(t, tree.FormatLinuxTree))
+	fmt.Println(tree.FormatTree(t, tree.FormatHorizontal))
+	fmt.Println(tree.FormatTree(t, tree.FormatHorizontalSquared))
 
 	t2 := tree.NewBST[int]()
 	t2.Insert(5)
 
-	p := tree.New[int]()
-	// p.SquareBranches = true
-	p.PrintTree(t.Root())
-	p.PrintTrees([]tree.Node[int]{t.Root(), t2.Root()}, 1)
 }

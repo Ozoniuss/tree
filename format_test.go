@@ -77,7 +77,7 @@ func TestFormatLinuxTree(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		out := FormatTree(tc.t)
+		out := FormatTree(tc.t, string(FormatLinuxTree))
 		if out != strings.TrimPrefix(tc.repr, "\n") {
 			t.Errorf("expected:\n%s (len: %d)\ngot:\n%s (len: %d)", tc.repr, len(tc.repr), out, len(out))
 		}
