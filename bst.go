@@ -73,6 +73,10 @@ func (t *BST[T]) Insert(value T) error {
 	return nil
 }
 
+func (t *BST[T]) Delete(value T) error {
+	panic("unimplemented")
+}
+
 func (t *BST[T]) MustInsert(value T) {
 	t.Insert(value)
 }

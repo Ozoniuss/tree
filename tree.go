@@ -18,6 +18,12 @@ type Tree[T cmp.Ordered] interface {
 	// Callers may choose to ignore the error if they just want to ensure the
 	// value is present in the tree.
 	Insert(value T) error
+	// Delete a value from the binary search tree. Implementations that allow
+	// storing multiple values of the same type should only remove one occurence
+	// of the value.
+	// Callers may choose to ignore the error if they just want to ensure the
+	// value is deleted from a tree supporting only unique values.
+	Delete(value T) error
 	// Count returns the number of elements with value `value` present in the
 	// tree. Implementations that require unique values will either return 0
 	// or 1.

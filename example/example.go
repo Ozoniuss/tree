@@ -9,16 +9,13 @@ import (
 func main() {
 
 	t1 := tree.NewBST[int]()
+
 	t1.Insert(4)
-
 	t1.Insert(1)
-	t1.Insert(8)
-
 	t1.Insert(8)
 	t1.Insert(6)
 	t1.Insert(9)
 	t1.Insert(5)
-
 	t1.Insert(11)
 	t1.Insert(13)
 
