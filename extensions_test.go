@@ -284,6 +284,7 @@ func TestEqual(t *testing.T) {
 	}
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			if Equal(tc.t1, tc.t2) != tc.equal {
 				t.Errorf("trees are not equal\nt1:\n%s\nt2:\n%s\n", FormatTree(tc.t1, FormatHorizontalSquared), FormatTree(tc.t2, FormatHorizontalSquared))
 			}
