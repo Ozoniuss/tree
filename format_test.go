@@ -14,14 +14,12 @@ func TestFormatLinuxTree(t *testing.T) {
 
 	testcases := []testCase{
 		{
-			t: nil,
-			repr: `
-`,
+			t:    nil,
+			repr: `nil tree`,
 		},
 		{
-			t: NewBST[int](),
-			repr: `
-*`,
+			t:    NewBST[int](),
+			repr: `empty tree`,
 		},
 		{
 			t: func() Tree[int] {

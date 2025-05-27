@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"fmt"
 	"io"
-	"os"
 	"regexp"
 	"slices"
 	"strings"
@@ -56,14 +55,6 @@ const (
 var availableFormats = []string{FormatLinuxTree, FormatHorizontal, FormatHorizontalSquared}
 
 func formatLinuxTree[T cmp.Ordered](t Tree[T]) string {
-	if t == nil {
-		return ""
-	}
-
-	if t.Root() == nil {
-		return "*"
-	}
-
 	if t.Root().Left() == nil && t.Root().Right() == nil {
 		return fmt.Sprint(t.Root().Value())
 	}
@@ -141,6 +132,12 @@ func formatLinuxTree[T cmp.Ordered](t Tree[T]) string {
 }
 
 func FormatTree[T cmp.Ordered](t Tree[T], formatType string) string {
+	if t == nil {
+		return "nil tree"
+	}
+	if t.Root() == nil {
+		return "empty tree"
+	}
 	if !slices.Contains(availableFormats, formatType) {
 		formatType = FormatHorizontal
 	}
@@ -174,7 +171,7 @@ type horizontalFomrmatter[T cmp.Ordered] struct {
 
 func newhf[T cmp.Ordered](out io.Writer, hspace int, squarebranches bool) *horizontalFomrmatter[T] {
 	p := &horizontalFomrmatter[T]{
-		out:            os.Stdout,
+		out:            out,
 		hspace:         hspace,
 		squareBranches: squarebranches,
 	}
