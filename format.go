@@ -54,7 +54,7 @@ const (
 
 var availableFormats = []string{FormatLinuxTree, FormatHorizontal, FormatHorizontalSquared}
 
-func formatLinuxTree[T cmp.Ordered](t Tree[T]) string {
+func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 	if t.Root().Left() == nil && t.Root().Right() == nil {
 		return fmt.Sprint(t.Root().Value())
 	}
@@ -190,6 +190,13 @@ func (p *horizontalFomrmatter[T]) buildTreeLines(root Node[T]) []treeLine {
 	}
 
 	rootLabel := fmt.Sprint(root.Value())
+	var color string
+	if rootc, ok := root.(coloredNode[T]); ok {
+		color = rootc.ttycolor()
+	}
+	if color == COLOR_RED {
+		rootLabel = TtyRed + fmt.Sprint(root.Value()) + TtyColorReset
+	}
 	leftLines := p.buildTreeLines(root.Left())
 	rightLines := p.buildTreeLines(root.Right())
 
@@ -399,3 +406,26 @@ func maxRightOffset(lines []treeLine) int {
 	}
 	return maxVal
 }
+
+// coloredTree is an internal interface extending the tree interface
+// to allow printing colored nodes, e.g. in Red Black trees.
+type coloredTree[T cmp.Ordered] interface {
+	Tree[T]
+}
+
+// coloredNode is an interface extending the node interface to allow printing
+// colored nodes, e.g. in Red Black trees.
+type coloredNode[T cmp.Ordered] interface {
+	Node[T]
+	ttycolor() string
+}
+
+var TtyColorReset = "\033[0m"
+var TtyRed = "\033[31m"
+var TtyGreen = "\033[32m"
+var TtyYellow = "\033[33m"
+var TtyBlue = "\033[34m"
+var TtyPurple = "\033[35m"
+var TtyCyan = "\033[36m"
+var TtyGray = "\033[37m"
+var TtyWhite = "\033[97m"

@@ -10,13 +10,13 @@ type BST[T cmp.Ordered] struct {
 	size int
 }
 
-func panicIfNilTree[T cmp.Ordered](t *BST[T]) {
+func panicIfNilBST[T cmp.Ordered](t *BST[T]) {
 	if t == nil {
 		panic("nil tree")
 	}
 }
 
-func panicIfNilNode[T cmp.Ordered](n *BSTNode[T]) {
+func panicIfNilBSTNode[T cmp.Ordered](n *BSTNode[T]) {
 	if n == nil {
 		panic("nil node")
 	}
@@ -30,7 +30,7 @@ func NewBST[T cmp.Ordered]() *BST[T] {
 }
 
 func (t *BST[T]) Root() Node[T] {
-	panicIfNilTree(t)
+	panicIfNilBST(t)
 
 	if t.root == nil {
 		return nil
@@ -38,13 +38,13 @@ func (t *BST[T]) Root() Node[T] {
 	return t.root
 }
 func (t *BST[T]) Size() int {
-	panicIfNilTree(t)
+	panicIfNilBST(t)
 
 	return t.size
 }
 
 func (t *BST[T]) Insert(value T) error {
-	panicIfNilTree(t)
+	panicIfNilBST(t)
 
 	if t.root == nil {
 		t.root = &BSTNode[T]{
@@ -89,7 +89,7 @@ func (t *BST[T]) Insert(value T) error {
 }
 
 func (t *BST[T]) Delete(value T) error {
-	panicIfNilTree(t)
+	panicIfNilBST(t)
 
 	if t.root == nil {
 		return fmt.Errorf("value not found")
@@ -132,7 +132,7 @@ func (t *BST[T]) Delete(value T) error {
 }
 
 func (t *BST[T]) String() string {
-	panicIfNilTree(t)
+	panicIfNilBST(t)
 
 	return FormatTree(t, string(FormatHorizontal))
 }
@@ -161,7 +161,7 @@ func treeMinimum[T cmp.Ordered](x *BSTNode[T]) *BSTNode[T] {
 }
 
 func (t *BST[T]) Count(value T) int {
-	panicIfNilTree(t)
+	panicIfNilBST(t)
 
 	if t.root == nil {
 		return 0
@@ -187,7 +187,7 @@ type BSTNode[T cmp.Ordered] struct {
 }
 
 func (n *BSTNode[T]) Parent() Node[T] {
-	panicIfNilNode(n)
+	panicIfNilBSTNode(n)
 
 	if n.parent == nil {
 		return nil
@@ -195,7 +195,7 @@ func (n *BSTNode[T]) Parent() Node[T] {
 	return n.parent
 }
 func (n *BSTNode[T]) Left() Node[T] {
-	panicIfNilNode(n)
+	panicIfNilBSTNode(n)
 
 	if n.left == nil {
 		return nil
@@ -203,7 +203,7 @@ func (n *BSTNode[T]) Left() Node[T] {
 	return n.left
 }
 func (n *BSTNode[T]) Right() Node[T] {
-	panicIfNilNode(n)
+	panicIfNilBSTNode(n)
 
 	if n.right == nil {
 		return nil
@@ -211,12 +211,16 @@ func (n *BSTNode[T]) Right() Node[T] {
 	return n.right
 }
 func (n *BSTNode[T]) Value() T {
-	panicIfNilNode(n)
+	panicIfNilBSTNode(n)
 
 	return n.value
 }
 func (n *BSTNode[T]) Count() int {
-	panicIfNilNode(n)
+	panicIfNilBSTNode(n)
 
 	return 1
+}
+
+func (n *BSTNode[T]) Color() string {
+	return ""
 }
