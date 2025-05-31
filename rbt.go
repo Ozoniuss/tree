@@ -31,17 +31,18 @@ type RBT[T cmp.Ordered] struct {
 }
 
 func NewRBT[T cmp.Ordered]() *RBT[T] {
+	tnil := sentinel[T]()
 	return &RBT[T]{
 		size: 0,
-		root: nil,
-		tnil: sentinel[T](),
+		root: tnil,
+		tnil: tnil,
 	}
 }
 
 func (t *RBT[T]) Root() Node[T] {
 	panicIfNilTree(t)
 
-	if t.root == nil {
+	if t.root.isSentinel() {
 		return nil
 	}
 	return t.root
@@ -55,7 +56,7 @@ func (t *RBT[T]) Size() int {
 func (t *RBT[T]) Insert(value T) error {
 	panicIfNilTree(t)
 
-	if t.root == nil {
+	if t.root == t.tnil {
 		t.root = &RBTNode[T]{
 			parent: t.tnil,
 			left:   t.tnil,
@@ -63,6 +64,7 @@ func (t *RBT[T]) Insert(value T) error {
 			value:  value,
 			color:  COLOR_BLACK,
 		}
+		t.size = 1
 		return nil
 	}
 
@@ -96,6 +98,7 @@ func (t *RBT[T]) Insert(value T) error {
 	z.color = COLOR_RED
 
 	insertFixup(t, z)
+	t.size++
 
 	return nil
 }
@@ -152,6 +155,7 @@ func (t *RBT[T]) Delete(value T) error {
 	if yorigcolor == COLOR_BLACK {
 		rbDeleteFixup(t, x)
 	}
+	t.size--
 	return nil
 }
 
@@ -242,44 +246,38 @@ type RBTNode[T cmp.Ordered] struct {
 }
 
 func (n *RBTNode[T]) Parent() Node[T] {
-	panicIfNilNode(n)
+	panicIfNilOrSentinelNode(n)
 
-	if n.parent == nil {
+	if n.parent.isSentinel() {
 		return nil
 	}
 	return n.parent
 }
 func (n *RBTNode[T]) Left() Node[T] {
-	panicIfNilNode(n)
+	panicIfNilOrSentinelNode(n)
 
-	if n.left == nil {
+	if n.left.isSentinel() {
 		return nil
 	}
 	return n.left
 }
 func (n *RBTNode[T]) Right() Node[T] {
-	panicIfNilNode(n)
+	panicIfNilOrSentinelNode(n)
 
-	if n.right == nil {
+	if n.left.isSentinel() {
 		return nil
 	}
 	return n.right
 }
 func (n *RBTNode[T]) Value() T {
-	panicIfNilNode(n)
+	panicIfNilOrSentinelNode(n)
 
 	return n.value
 }
 func (n *RBTNode[T]) Count() int {
-	panicIfNilNode(n)
+	panicIfNilOrSentinelNode(n)
 
 	return 1
-}
-
-func (n *RBTNode[T]) Color() string {
-	panicIfNilNode(n)
-
-	return n.color
 }
 
 func (n *RBTNode[T]) ttycolor() string {
@@ -289,7 +287,23 @@ func (n *RBTNode[T]) ttycolor() string {
 }
 
 func (n *RBTNode[T]) isSentinel() bool {
+	// all children of non-sentinel rbt nodes are represented as tnil.
 	return n.left == nil && n.right == nil
+}
+
+// panicIfNilOrSentinelNode will panic if the current node is nil or a sentinel.
+// Sentinels are included because they are an implementation detail to simplify
+// edge case handling in algorithms, but in essence they still represent nil
+// nodes and should be exposed as nil from public methods.
+//
+// Note that this method is typically called for public methods, as algorithms
+// use the internal representation directly.
+func panicIfNilOrSentinelNode[T cmp.Ordered](n *RBTNode[T]) {
+	if n == nil {
+		panic("nil node")
+	} else if n.isSentinel() {
+		panic("nil node")
+	}
 }
 
 func leftRotate[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {

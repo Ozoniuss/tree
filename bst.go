@@ -100,9 +100,11 @@ func (t *BST[T]) Delete(value T) error {
 
 	if z.left == nil {
 		transplant(t, z, z.right)
+		t.size--
 		return nil
 	} else if z.right == nil {
 		transplant(t, z, z.left)
+		t.size--
 		return nil
 	}
 
@@ -116,6 +118,7 @@ func (t *BST[T]) Delete(value T) error {
 	y.left = z.left
 	y.left.parent = y
 
+	t.size--
 	return nil
 }
 
