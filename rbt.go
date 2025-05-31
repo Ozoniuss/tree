@@ -10,13 +10,6 @@ const (
 	_COLOR_BLACK = "black"
 )
 
-func getColor[T cmp.Ordered](n *RBTNode[T]) string {
-	if n == nil {
-		return _COLOR_BLACK
-	}
-	return n.color
-}
-
 type RBT[T cmp.Ordered] struct {
 	root *RBTNode[T]
 	size int
@@ -141,7 +134,7 @@ func (t *RBT[T]) Delete(value T) error {
 	}
 
 	y := z
-	yorigcolor := getColor(y)
+	yorigcolor := y.color
 	var x *RBTNode[T]
 
 	if z.left == t.tnil {
@@ -152,7 +145,7 @@ func (t *RBT[T]) Delete(value T) error {
 		rbtransplant(t, z, z.left)
 	} else {
 		y = treeMinimumRbt(t, z.right)
-		yorigcolor = getColor(y)
+		yorigcolor = y.color
 		x = y.right
 		if y.parent == z {
 			x.parent = y
@@ -164,7 +157,7 @@ func (t *RBT[T]) Delete(value T) error {
 		rbtransplant(t, z, y)
 		y.left = z.left
 		y.left.parent = y
-		y.color = getColor(z)
+		y.color = z.color
 	}
 	if yorigcolor == _COLOR_BLACK {
 		rbDeleteFixup(t, x)
@@ -317,10 +310,10 @@ func treeMinimumRbt[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) *RBTNode[T] {
 }
 
 func insertFixup[T cmp.Ordered](t *RBT[T], z *RBTNode[T]) {
-	for getColor(z.parent) == _COLOR_RED {
+	for z.parent.color == _COLOR_RED {
 		if z.parent == z.parent.parent.left {
 			y := z.parent.parent.right
-			if getColor(y) == _COLOR_RED {
+			if y.color == _COLOR_RED {
 				z.parent.color = _COLOR_BLACK
 				y.color = _COLOR_BLACK
 				z.parent.parent.color = _COLOR_RED
@@ -335,7 +328,7 @@ func insertFixup[T cmp.Ordered](t *RBT[T], z *RBTNode[T]) {
 			}
 		} else {
 			y := z.parent.parent.left
-			if getColor(y) == _COLOR_RED {
+			if y.color == _COLOR_RED {
 				z.parent.color = _COLOR_BLACK
 				y.color = _COLOR_BLACK
 				z.parent.parent.color = _COLOR_RED
@@ -354,25 +347,25 @@ func insertFixup[T cmp.Ordered](t *RBT[T], z *RBTNode[T]) {
 }
 
 func rbDeleteFixup[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {
-	for x != t.root && getColor(x) == _COLOR_BLACK {
+	for x != t.root && x.color == _COLOR_BLACK {
 		if x == x.parent.left {
 			w := x.parent.right
-			if getColor(w) == _COLOR_RED {
+			if w.color == _COLOR_RED {
 				w.color = _COLOR_BLACK
 				x.parent.color = _COLOR_RED
 				leftRotate(t, x.parent)
 				w = x.parent.right
 			}
-			if getColor(w.left) == _COLOR_BLACK && getColor(w.right) == _COLOR_BLACK {
+			if w.left.color == _COLOR_BLACK && w.right.color == _COLOR_BLACK {
 				w.color = _COLOR_RED
 				x = x.parent
-			} else if getColor(w.right) == _COLOR_BLACK {
+			} else if w.right.color == _COLOR_BLACK {
 				w.left.color = _COLOR_BLACK
 				w.color = _COLOR_RED
 				rightRotate(t, w)
 				w = x.parent.right
 			} else {
-				w.color = getColor(x.parent)
+				w.color = x.parent.color
 				x.parent.color = _COLOR_BLACK
 				w.right.color = _COLOR_BLACK
 				leftRotate(t, x.parent)
@@ -380,22 +373,22 @@ func rbDeleteFixup[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {
 			}
 		} else {
 			w := x.parent.left
-			if getColor(w) == _COLOR_RED {
+			if w.color == _COLOR_RED {
 				w.color = _COLOR_BLACK
 				x.parent.color = _COLOR_RED
 				rightRotate(t, x.parent)
 				w = x.parent.left
 			}
-			if getColor(w.right) == _COLOR_BLACK && getColor(w.left) == _COLOR_BLACK {
+			if w.right.color == _COLOR_BLACK && w.left.color == _COLOR_BLACK {
 				w.color = _COLOR_RED
 				x = x.parent
-			} else if getColor(w.left) == _COLOR_BLACK {
+			} else if w.left.color == _COLOR_BLACK {
 				w.right.color = _COLOR_BLACK
 				w.color = _COLOR_RED
 				leftRotate(t, w)
 				w = x.parent.left
 			} else {
-				w.color = getColor(x.parent)
+				w.color = x.parent.color
 				x.parent.color = _COLOR_BLACK
 				w.left.color = _COLOR_BLACK
 				rightRotate(t, x.parent)
