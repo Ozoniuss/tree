@@ -8,20 +8,21 @@ The following interfaces abstracts Trees and Nodes, respectively:
 
 ```go
 type Tree[T cmp.Ordered] interface {
-    Root() Node[T]
-    Size() int
-    Insert(value T) error
-    Delete(value T) error
-    Count(value T) int
+	Root() Node[T]
+	Size() int
+	Count(value T) int
+	Insert(value T) error
+	Delete(value T) error
 }
 
 type Node[T cmp.Ordered] interface {
-    Parent() Node[T]
-    Value() T
-    Left() Node[T]
-    Right() Node[T]
-    Count() int
+	Value() T
+	Count() int
+	Parent() Node[T]
+	Left() Node[T]
+	Right() Node[T]
 }
+
 ```
 
 ## Available implementations

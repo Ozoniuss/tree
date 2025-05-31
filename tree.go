@@ -13,6 +13,13 @@ type Tree[T cmp.Ordered] interface {
 	Root() Node[T]
 	// Return the number of nodes in the tree.
 	Size() int
+	// Count returns the number of elements with value `value` present in the
+	// tree. Implementations that require unique values will either return 0
+	// or 1.
+	//
+	// Use this method if you need to determine whether a value belongs to the
+	// tree or not.
+	Count(value T) int
 	// Insert a value to the binary search tree. Implementations that require
 	// storing unique values will return an error if that value already exists.
 	// Callers may choose to ignore the error if they just want to ensure the
@@ -24,13 +31,6 @@ type Tree[T cmp.Ordered] interface {
 	// Callers may choose to ignore the error if they just want to ensure the
 	// value is deleted from a tree supporting only unique values.
 	Delete(value T) error
-	// Count returns the number of elements with value `value` present in the
-	// tree. Implementations that require unique values will either return 0
-	// or 1.
-	//
-	// Use this method if you need to determine whether a value belongs to the
-	// tree or not.
-	Count(value T) int
 }
 
 // Node represents the possible operations on binary search tree nodes.
@@ -46,24 +46,24 @@ type Tree[T cmp.Ordered] interface {
 //
 // Calling any method on a nil node should panic.
 type Node[T cmp.Ordered] interface {
-	// Parent returns the parent node. This should return nil for the root node
-	// and a non-nil value for all other nodes.
-	//
-	// This method should be used to check if an individual node is the root of
-	// the tree.
-	Parent() Node[T]
 	// Value returns the value stored in the node.
 	Value() T
-	// Left returns the left child of the node. This should return nil if there
-	// is no left child.
-	Left() Node[T]
-	// Right returns the right child of the node. This should return nil if there
-	// is no right child.
-	Right() Node[T]
 	// Count returns the number of elements equal to the node's `value` are
 	// present in the tree. Since the nodes are always bound to only one tree
 	// (i.e. nodes are not created without a tree directly or transitively
 	// pointing to them), implementations that require unique values will always
 	// return 1.
 	Count() int
+	// Parent returns the parent node. This should return nil for the root node
+	// and a non-nil value for all other nodes.
+	//
+	// This method should be used to check if an individual node is the root of
+	// the tree.
+	Parent() Node[T]
+	// Left returns the left child of the node. This should return nil if there
+	// is no left child.
+	Left() Node[T]
+	// Right returns the right child of the node. This should return nil if there
+	// is no right child.
+	Right() Node[T]
 }

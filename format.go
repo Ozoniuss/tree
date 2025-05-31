@@ -200,7 +200,7 @@ func (p *horizontalFomrmatter[T]) buildTreeLines(root Node[T]) []treeLine {
 	if rootc, ok := root.(coloredNode[T]); ok {
 		color = rootc.ttycolor()
 	}
-	if color == COLOR_RED {
+	if color == _COLOR_RED {
 		rootLabel = TtyRed + fmt.Sprint(root.Value()) + TtyColorReset
 	}
 	leftLines := p.buildTreeLines(root.Left())

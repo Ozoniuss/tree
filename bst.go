@@ -10,6 +10,7 @@ type BST[T cmp.Ordered] struct {
 	size int
 }
 
+// NewBST returns an initialized binary search tree.
 func NewBST[T cmp.Ordered]() *BST[T] {
 	return &BST[T]{
 		size: 0,
@@ -25,10 +26,30 @@ func (t *BST[T]) Root() Node[T] {
 	}
 	return t.root
 }
+
 func (t *BST[T]) Size() int {
 	panicIfNilTree(t)
 
 	return t.size
+}
+
+func (t *BST[T]) Count(value T) int {
+	panicIfNilTree(t)
+
+	if t.root == nil {
+		return 0
+	}
+	c := t.root
+	for c != nil {
+		if value < c.value {
+			c = c.left
+		} else if value > c.value {
+			c = c.right
+		} else {
+			return c.Count()
+		}
+	}
+	return 0
 }
 
 func (t *BST[T]) Insert(value T) error {
@@ -128,6 +149,54 @@ func (t *BST[T]) String() string {
 	return FormatTree(t, string(FormatHorizontal))
 }
 
+type BSTNode[T cmp.Ordered] struct {
+	parent *BSTNode[T]
+	left   *BSTNode[T]
+	right  *BSTNode[T]
+	value  T
+}
+
+func (n *BSTNode[T]) Parent() Node[T] {
+	panicIfNilNode(n)
+
+	if n.parent == nil {
+		return nil
+	}
+	return n.parent
+}
+
+func (n *BSTNode[T]) Left() Node[T] {
+	panicIfNilNode(n)
+
+	if n.left == nil {
+		return nil
+	}
+	return n.left
+}
+
+func (n *BSTNode[T]) Right() Node[T] {
+	panicIfNilNode(n)
+
+	if n.right == nil {
+		return nil
+	}
+	return n.right
+}
+
+func (n *BSTNode[T]) Value() T {
+	panicIfNilNode(n)
+
+	return n.value
+}
+
+func (n *BSTNode[T]) Count() int {
+	panicIfNilNode(n)
+
+	return 1
+}
+
+// Tree helpers
+
 // transplant replaces one subtree with another subtree
 func transplant[T cmp.Ordered](t *BST[T], u *BSTNode[T], v *BSTNode[T]) {
 	// u is root
@@ -149,69 +218,4 @@ func treeMinimum[T cmp.Ordered](x *BSTNode[T]) *BSTNode[T] {
 		y = y.left
 	}
 	return y
-}
-
-func (t *BST[T]) Count(value T) int {
-	panicIfNilTree(t)
-
-	if t.root == nil {
-		return 0
-	}
-	c := t.root
-	for c != nil {
-		if value < c.value {
-			c = c.left
-		} else if value > c.value {
-			c = c.right
-		} else {
-			return c.Count()
-		}
-	}
-	return 0
-}
-
-type BSTNode[T cmp.Ordered] struct {
-	parent *BSTNode[T]
-	left   *BSTNode[T]
-	right  *BSTNode[T]
-	value  T
-}
-
-func (n *BSTNode[T]) Parent() Node[T] {
-	panicIfNilNode(n)
-
-	if n.parent == nil {
-		return nil
-	}
-	return n.parent
-}
-func (n *BSTNode[T]) Left() Node[T] {
-	panicIfNilNode(n)
-
-	if n.left == nil {
-		return nil
-	}
-	return n.left
-}
-func (n *BSTNode[T]) Right() Node[T] {
-	panicIfNilNode(n)
-
-	if n.right == nil {
-		return nil
-	}
-	return n.right
-}
-func (n *BSTNode[T]) Value() T {
-	panicIfNilNode(n)
-
-	return n.value
-}
-func (n *BSTNode[T]) Count() int {
-	panicIfNilNode(n)
-
-	return 1
-}
-
-func (n *BSTNode[T]) Color() string {
-	return ""
 }

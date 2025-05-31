@@ -6,20 +6,13 @@ import (
 )
 
 const (
-	COLOR_RED   = "red"
-	COLOR_BLACK = "black"
+	_COLOR_RED   = "red"
+	_COLOR_BLACK = "black"
 )
-
-// sentinel value
-func sentinel[T cmp.Ordered]() *RBTNode[T] {
-	return &RBTNode[T]{
-		color: COLOR_BLACK,
-	}
-}
 
 func getColor[T cmp.Ordered](n *RBTNode[T]) string {
 	if n == nil {
-		return COLOR_BLACK
+		return _COLOR_BLACK
 	}
 	return n.color
 }
@@ -30,6 +23,7 @@ type RBT[T cmp.Ordered] struct {
 	tnil *RBTNode[T]
 }
 
+// NewRBT returns an initialized red black tree.
 func NewRBT[T cmp.Ordered]() *RBT[T] {
 	tnil := sentinel[T]()
 	return &RBT[T]{
@@ -47,10 +41,30 @@ func (t *RBT[T]) Root() Node[T] {
 	}
 	return t.root
 }
+
 func (t *RBT[T]) Size() int {
 	panicIfNilTree(t)
 
 	return t.size
+}
+
+func (t *RBT[T]) Count(value T) int {
+	panicIfNilTree(t)
+
+	if t.root == nil {
+		return 0
+	}
+	c := t.root
+	for c != nil {
+		if value < c.value {
+			c = c.left
+		} else if value > c.value {
+			c = c.right
+		} else {
+			return c.Count()
+		}
+	}
+	return 0
 }
 
 func (t *RBT[T]) Insert(value T) error {
@@ -62,7 +76,7 @@ func (t *RBT[T]) Insert(value T) error {
 			left:   t.tnil,
 			right:  t.tnil,
 			value:  value,
-			color:  COLOR_BLACK,
+			color:  _COLOR_BLACK,
 		}
 		t.size = 1
 		return nil
@@ -95,7 +109,7 @@ func (t *RBT[T]) Insert(value T) error {
 	}
 	z.left = t.tnil
 	z.right = t.tnil
-	z.color = COLOR_RED
+	z.color = _COLOR_RED
 
 	insertFixup(t, z)
 	t.size++
@@ -152,89 +166,17 @@ func (t *RBT[T]) Delete(value T) error {
 		y.left.parent = y
 		y.color = getColor(z)
 	}
-	if yorigcolor == COLOR_BLACK {
+	if yorigcolor == _COLOR_BLACK {
 		rbDeleteFixup(t, x)
 	}
 	t.size--
 	return nil
 }
 
-func rbDeleteFixup[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {
-	for x != t.root && getColor(x) == COLOR_BLACK {
-		if x == x.parent.left {
-			w := x.parent.right
-			if getColor(w) == COLOR_RED {
-				w.color = COLOR_BLACK
-				x.parent.color = COLOR_RED
-				leftRotate(t, x.parent)
-				w = x.parent.right
-			}
-			if getColor(w.left) == COLOR_BLACK && getColor(w.right) == COLOR_BLACK {
-				w.color = COLOR_RED
-				x = x.parent
-			} else if getColor(w.right) == COLOR_BLACK {
-				w.left.color = COLOR_BLACK
-				w.color = COLOR_RED
-				rightRotate(t, w)
-				w = x.parent.right
-			} else {
-				w.color = getColor(x.parent)
-				x.parent.color = COLOR_BLACK
-				w.right.color = COLOR_BLACK
-				leftRotate(t, x.parent)
-				x = t.root
-			}
-		} else {
-			w := x.parent.left
-			if getColor(w) == COLOR_RED {
-				w.color = COLOR_BLACK
-				x.parent.color = COLOR_RED
-				rightRotate(t, x.parent)
-				w = x.parent.left
-			}
-			if getColor(w.right) == COLOR_BLACK && getColor(w.left) == COLOR_BLACK {
-				w.color = COLOR_RED
-				x = x.parent
-			} else if getColor(w.left) == COLOR_BLACK {
-				w.right.color = COLOR_BLACK
-				w.color = COLOR_RED
-				leftRotate(t, w)
-				w = x.parent.left
-			} else {
-				w.color = getColor(x.parent)
-				x.parent.color = COLOR_BLACK
-				w.left.color = COLOR_BLACK
-				rightRotate(t, x.parent)
-				x = t.root
-			}
-		}
-	}
-	x.color = COLOR_BLACK
-}
-
 func (t *RBT[T]) String() string {
 	panicIfNilTree(t)
 
 	return FormatTree(t, string(FormatHorizontal))
-}
-
-func (t *RBT[T]) Count(value T) int {
-	panicIfNilTree(t)
-
-	if t.root == nil {
-		return 0
-	}
-	c := t.root
-	for c != nil {
-		if value < c.value {
-			c = c.left
-		} else if value > c.value {
-			c = c.right
-		} else {
-			return c.Count()
-		}
-	}
-	return 0
 }
 
 type RBTNode[T cmp.Ordered] struct {
@@ -245,6 +187,18 @@ type RBTNode[T cmp.Ordered] struct {
 	color  string
 }
 
+func (n *RBTNode[T]) Value() T {
+	panicIfNilOrSentinelNode(n)
+
+	return n.value
+}
+
+func (n *RBTNode[T]) Count() int {
+	panicIfNilOrSentinelNode(n)
+
+	return 1
+}
+
 func (n *RBTNode[T]) Parent() Node[T] {
 	panicIfNilOrSentinelNode(n)
 
@@ -253,6 +207,7 @@ func (n *RBTNode[T]) Parent() Node[T] {
 	}
 	return n.parent
 }
+
 func (n *RBTNode[T]) Left() Node[T] {
 	panicIfNilOrSentinelNode(n)
 
@@ -261,6 +216,7 @@ func (n *RBTNode[T]) Left() Node[T] {
 	}
 	return n.left
 }
+
 func (n *RBTNode[T]) Right() Node[T] {
 	panicIfNilOrSentinelNode(n)
 
@@ -269,26 +225,24 @@ func (n *RBTNode[T]) Right() Node[T] {
 	}
 	return n.right
 }
-func (n *RBTNode[T]) Value() T {
-	panicIfNilOrSentinelNode(n)
 
-	return n.value
-}
-func (n *RBTNode[T]) Count() int {
-	panicIfNilOrSentinelNode(n)
-
-	return 1
+func (n *RBTNode[T]) isSentinel() bool {
+	// all children of non-sentinel rbt nodes are represented as tnil.
+	return n.left == nil && n.right == nil
 }
 
+// ttycolor is used for colored terminal output.
 func (n *RBTNode[T]) ttycolor() string {
 	panicIfNilNode(n)
 
 	return n.color
 }
 
-func (n *RBTNode[T]) isSentinel() bool {
-	// all children of non-sentinel rbt nodes are represented as tnil.
-	return n.left == nil && n.right == nil
+// sentinel value
+func sentinel[T cmp.Ordered]() *RBTNode[T] {
+	return &RBTNode[T]{
+		color: _COLOR_BLACK,
+	}
 }
 
 // panicIfNilOrSentinelNode will panic if the current node is nil or a sentinel.
@@ -342,43 +296,6 @@ func rightRotate[T cmp.Ordered](t *RBT[T], y *RBTNode[T]) {
 	y.parent = x
 }
 
-func insertFixup[T cmp.Ordered](t *RBT[T], z *RBTNode[T]) {
-	for getColor(z.parent) == COLOR_RED {
-		if z.parent == z.parent.parent.left {
-			y := z.parent.parent.right
-			if getColor(y) == COLOR_RED {
-				z.parent.color = COLOR_BLACK
-				y.color = COLOR_BLACK
-				z.parent.parent.color = COLOR_RED
-				z = z.parent.parent
-			} else if z == z.parent.right {
-				z = z.parent
-				leftRotate(t, z)
-			} else {
-				z.parent.color = COLOR_BLACK
-				z.parent.parent.color = COLOR_RED
-				rightRotate(t, z.parent.parent)
-			}
-		} else {
-			y := z.parent.parent.left
-			if getColor(y) == COLOR_RED {
-				z.parent.color = COLOR_BLACK
-				y.color = COLOR_BLACK
-				z.parent.parent.color = COLOR_RED
-				z = z.parent.parent
-			} else if z == z.parent.left {
-				z = z.parent
-				rightRotate(t, z)
-			} else {
-				z.parent.color = COLOR_BLACK
-				z.parent.parent.color = COLOR_RED
-				leftRotate(t, z.parent.parent)
-			}
-		}
-	}
-	t.root.color = COLOR_BLACK
-}
-
 // transplant replaces one subtree with another subtree
 func rbtransplant[T cmp.Ordered](t *RBT[T], u *RBTNode[T], v *RBTNode[T]) {
 	// u is root
@@ -397,4 +314,94 @@ func treeMinimumRbt[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) *RBTNode[T] {
 		x = x.left
 	}
 	return x
+}
+
+func insertFixup[T cmp.Ordered](t *RBT[T], z *RBTNode[T]) {
+	for getColor(z.parent) == _COLOR_RED {
+		if z.parent == z.parent.parent.left {
+			y := z.parent.parent.right
+			if getColor(y) == _COLOR_RED {
+				z.parent.color = _COLOR_BLACK
+				y.color = _COLOR_BLACK
+				z.parent.parent.color = _COLOR_RED
+				z = z.parent.parent
+			} else if z == z.parent.right {
+				z = z.parent
+				leftRotate(t, z)
+			} else {
+				z.parent.color = _COLOR_BLACK
+				z.parent.parent.color = _COLOR_RED
+				rightRotate(t, z.parent.parent)
+			}
+		} else {
+			y := z.parent.parent.left
+			if getColor(y) == _COLOR_RED {
+				z.parent.color = _COLOR_BLACK
+				y.color = _COLOR_BLACK
+				z.parent.parent.color = _COLOR_RED
+				z = z.parent.parent
+			} else if z == z.parent.left {
+				z = z.parent
+				rightRotate(t, z)
+			} else {
+				z.parent.color = _COLOR_BLACK
+				z.parent.parent.color = _COLOR_RED
+				leftRotate(t, z.parent.parent)
+			}
+		}
+	}
+	t.root.color = _COLOR_BLACK
+}
+
+func rbDeleteFixup[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {
+	for x != t.root && getColor(x) == _COLOR_BLACK {
+		if x == x.parent.left {
+			w := x.parent.right
+			if getColor(w) == _COLOR_RED {
+				w.color = _COLOR_BLACK
+				x.parent.color = _COLOR_RED
+				leftRotate(t, x.parent)
+				w = x.parent.right
+			}
+			if getColor(w.left) == _COLOR_BLACK && getColor(w.right) == _COLOR_BLACK {
+				w.color = _COLOR_RED
+				x = x.parent
+			} else if getColor(w.right) == _COLOR_BLACK {
+				w.left.color = _COLOR_BLACK
+				w.color = _COLOR_RED
+				rightRotate(t, w)
+				w = x.parent.right
+			} else {
+				w.color = getColor(x.parent)
+				x.parent.color = _COLOR_BLACK
+				w.right.color = _COLOR_BLACK
+				leftRotate(t, x.parent)
+				x = t.root
+			}
+		} else {
+			w := x.parent.left
+			if getColor(w) == _COLOR_RED {
+				w.color = _COLOR_BLACK
+				x.parent.color = _COLOR_RED
+				rightRotate(t, x.parent)
+				w = x.parent.left
+			}
+			if getColor(w.right) == _COLOR_BLACK && getColor(w.left) == _COLOR_BLACK {
+				w.color = _COLOR_RED
+				x = x.parent
+			} else if getColor(w.left) == _COLOR_BLACK {
+				w.right.color = _COLOR_BLACK
+				w.color = _COLOR_RED
+				leftRotate(t, w)
+				w = x.parent.left
+			} else {
+				w.color = getColor(x.parent)
+				x.parent.color = _COLOR_BLACK
+				w.left.color = _COLOR_BLACK
+				rightRotate(t, x.parent)
+				x = t.root
+			}
+		}
+	}
+	x.color = _COLOR_BLACK
 }
