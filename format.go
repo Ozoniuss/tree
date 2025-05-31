@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	PREFIX_LEFT  = "├──"
-	PREFIX_RIGHT = "└──"
+	_PREFIX_LEFT  = "├──"
+	_PREFIX_RIGHT = "└──"
 
-	EXTRA_LEFT  = "│   "
-	EXTRA_RIGHT = "    "
+	_EXTRA_LEFT  = "│   "
+	_EXTRA_RIGHT = "    "
 )
 
 const (
@@ -47,12 +47,66 @@ const (
 	   		│       └── 11
 	   		└── 13
 	*/
-	FormatLinuxTree         = "FormatLinuxTree"
-	FormatHorizontal        = "FormatHorizontal"
+	FormatLinuxTree = "FormatLinuxTree"
+	/*
+	   FormatHorizontal formats the tree horizontally. This is the most common
+	   format used to represent trees in text files.
+
+	      4
+	     / \
+	    1   8
+	       / \
+	      6   9
+	     /     \
+	    5       11
+	             \
+	              13
+	*/
+	FormatHorizontal = "FormatHorizontal"
+	/*
+	   FormatHorizontalSquared formats the tree horizontally but using squared
+	   branches. This is useful if you want the output to be wider rather than
+	   longer, for example if using nodes with long labels.
+
+	                         5sfhskfuceskjvsdnkvjkdsn
+	               ┌────────────────────┬────────────────────┐
+	    1dbfalkfbdslkjfbadslkfbl                 8dsbflkjsdbfjzhklsdbfljkds
+	               └┐                          ┌─────────────┬─────────────┐
+	     3dbfalkfbdslkjfbadslkfbl  7dsbflkjsdbfjzhklsdbfljkds  9dsbflkjsdbfjzhklsdbfljkds
+	*/
 	FormatHorizontalSquared = "FormatHorizontalSquared"
 )
 
 var availableFormats = []string{FormatLinuxTree, FormatHorizontal, FormatHorizontalSquared}
+
+// FormatTree will return a string representation of the tree, based on the
+// format options provided.
+func FormatTree[T cmp.Ordered](t Tree[T], formatType string) string {
+	if t == nil {
+		return "nil tree"
+	}
+	if t.Root() == nil {
+		return "empty tree"
+	}
+	if !slices.Contains(availableFormats, formatType) {
+		formatType = FormatHorizontal
+	}
+	switch formatType {
+	case FormatLinuxTree:
+		return formatLinuxTree(t)
+	case FormatHorizontal:
+		b := strings.Builder{}
+		hf := newhf[T](&b, 2, false)
+		hf.formatTree(t.Root())
+		return b.String()
+	case FormatHorizontalSquared:
+		b := strings.Builder{}
+		hf := newhf[T](&b, 2, true)
+		hf.formatTree(t.Root())
+		return b.String()
+	}
+	return ""
+}
 
 func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 	if t.Root().Left() == nil && t.Root().Right() == nil {
@@ -101,8 +155,8 @@ func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 			} else {
 				toprint = fmt.Sprint(l.Value())
 			}
-			out += fmt.Sprintf("%s%s %v\n", strings.Join(prefix, ""), PREFIX_LEFT, toprint)
-			prefix = append(prefix, EXTRA_LEFT)
+			out += fmt.Sprintf("%s%s %v\n", strings.Join(prefix, ""), _PREFIX_LEFT, toprint)
+			prefix = append(prefix, _EXTRA_LEFT)
 			stack = append(stack, &stkobj{
 				n:   l,
 				cnt: 0,
@@ -117,8 +171,8 @@ func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 			} else {
 				toprint = fmt.Sprint(r.Value())
 			}
-			out += fmt.Sprintf("%s%s %v\n", strings.Join(prefix, ""), PREFIX_RIGHT, toprint)
-			prefix = append(prefix, EXTRA_RIGHT)
+			out += fmt.Sprintf("%s%s %v\n", strings.Join(prefix, ""), _PREFIX_RIGHT, toprint)
+			prefix = append(prefix, _EXTRA_RIGHT)
 			stack = append(stack, &stkobj{
 				n:   n.Right(),
 				cnt: 0,
@@ -129,33 +183,6 @@ func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 	}
 
 	return strings.TrimSuffix(out, "\n")
-}
-
-func FormatTree[T cmp.Ordered](t Tree[T], formatType string) string {
-	if t == nil {
-		return "nil tree"
-	}
-	if t.Root() == nil {
-		return "empty tree"
-	}
-	if !slices.Contains(availableFormats, formatType) {
-		formatType = FormatHorizontal
-	}
-	switch formatType {
-	case FormatLinuxTree:
-		return formatLinuxTree(t)
-	case FormatHorizontal:
-		b := strings.Builder{}
-		hf := newhf[T](&b, 2, false)
-		hf.formatTree(t.Root())
-		return b.String()
-	case FormatHorizontalSquared:
-		b := strings.Builder{}
-		hf := newhf[T](&b, 2, true)
-		hf.formatTree(t.Root())
-		return b.String()
-	}
-	return ""
 }
 
 // horizontalFomrmatter renders a horizontal ASCII representation of a binary tree.
@@ -201,7 +228,7 @@ func (p *horizontalFomrmatter[T]) buildTreeLines(root Node[T]) []treeLine {
 		color = rootc.ttycolor()
 	}
 	if color == _COLOR_RED {
-		rootLabel = TtyRed + fmt.Sprint(root.Value()) + TtyColorReset
+		rootLabel = ttyRed + fmt.Sprint(root.Value()) + ttyColorReset
 	}
 	leftLines := p.buildTreeLines(root.Left())
 	rightLines := p.buildTreeLines(root.Right())
@@ -429,12 +456,12 @@ type nodeWithSentinel[T cmp.Ordered] interface {
 	isSentinel() bool
 }
 
-var TtyColorReset = "\033[0m"
-var TtyRed = "\033[31m"
-var TtyGreen = "\033[32m"
-var TtyYellow = "\033[33m"
-var TtyBlue = "\033[34m"
-var TtyPurple = "\033[35m"
-var TtyCyan = "\033[36m"
-var TtyGray = "\033[37m"
-var TtyWhite = "\033[97m"
+var ttyColorReset = "\033[0m"
+var ttyRed = "\033[31m"
+var ttyGreen = "\033[32m"
+var ttyYellow = "\033[33m"
+var ttyBlue = "\033[34m"
+var ttyPurple = "\033[35m"
+var ttyCyan = "\033[36m"
+var ttyGray = "\033[37m"
+var ttyWhite = "\033[97m"
