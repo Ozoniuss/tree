@@ -24,6 +24,16 @@ type Node[T cmp.Ordered] interface {
 }
 ```
 
+## Available implementations
+
+- `tree.BST` (regular tree)
+
+This implementation preserves the binary search tree properties upon addition and deletion, but doesn't do any kind of rebalancing. Operations should have O(lg n) complexity on avegrage, with worst case complexity going up to O(n) (e.g. if adding consecutive numbers to the tree).
+
+- `tree.RBT` (red black tree)
+
+This implements a self-balancing binary search tree using a technique called "red-black tree". Because a tree of this kind has a height smaller or equal than 2lg(n+1) where n is the number of nodes, operations have O(lg n) both average and worst case complexity.
+
 ## Installation
 
 Install with
@@ -105,3 +115,6 @@ The code for printing the tree horizontally is ported from @billvanyo's [tree_pr
 For more examples on how the horizontal printer behaves, visit @billvanyo's [github repository](https://github.com/billvanyo/tree_printer/tree/master)
 
 There is also a vertical tree formatter inspired from the Linux `tree` utility that I implemented myself. See the `FormatTree` options for how to specify the formatter.
+
+> [!TIP]
+> Red-black trees are printed with colored nodes. 
