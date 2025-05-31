@@ -189,6 +189,12 @@ func (p *horizontalFomrmatter[T]) buildTreeLines(root Node[T]) []treeLine {
 		return nil
 	}
 
+	if s, ok := (root).(nodeWithSentinel[T]); ok {
+		if s.isSentinel() {
+			return nil
+		}
+	}
+
 	rootLabel := fmt.Sprint(root.Value())
 	var color string
 	if rootc, ok := root.(coloredNode[T]); ok {
@@ -416,8 +422,11 @@ type coloredTree[T cmp.Ordered] interface {
 // coloredNode is an interface extending the node interface to allow printing
 // colored nodes, e.g. in Red Black trees.
 type coloredNode[T cmp.Ordered] interface {
-	Node[T]
 	ttycolor() string
+}
+
+type nodeWithSentinel[T cmp.Ordered] interface {
+	isSentinel() bool
 }
 
 var TtyColorReset = "\033[0m"

@@ -10,6 +10,13 @@ const (
 	COLOR_BLACK = "black"
 )
 
+// sentinel value
+func sentinel[T cmp.Ordered]() *RBTNode[T] {
+	return &RBTNode[T]{
+		color: COLOR_BLACK,
+	}
+}
+
 func getColor[T cmp.Ordered](n *RBTNode[T]) string {
 	if n == nil {
 		return COLOR_BLACK
@@ -20,12 +27,14 @@ func getColor[T cmp.Ordered](n *RBTNode[T]) string {
 type RBT[T cmp.Ordered] struct {
 	root *RBTNode[T]
 	size int
+	tnil *RBTNode[T]
 }
 
 func NewRBT[T cmp.Ordered]() *RBT[T] {
 	return &RBT[T]{
 		size: 0,
 		root: nil,
+		tnil: sentinel[T](),
 	}
 }
 
@@ -48,23 +57,22 @@ func (t *RBT[T]) Insert(value T) error {
 
 	if t.root == nil {
 		t.root = &RBTNode[T]{
-			parent: nil,
-			left:   nil,
-			right:  nil,
+			parent: t.tnil,
+			left:   t.tnil,
+			right:  t.tnil,
 			value:  value,
 			color:  COLOR_BLACK,
 		}
-		t.size++
 		return nil
 	}
 
-	var y *RBTNode[T] = nil
+	y := t.tnil
 	x := t.root
 	z := &RBTNode[T]{
 		value: value,
 	}
 
-	for x != nil {
+	for x != t.tnil {
 		y = x
 		if z.value < x.value {
 			x = x.left
@@ -76,18 +84,16 @@ func (t *RBT[T]) Insert(value T) error {
 	}
 	z.parent = y
 
-	if y == nil {
+	if y == t.tnil {
 		t.root = z
 	} else if z.value < y.value {
 		y.left = z
 	} else {
 		y.right = z
 	}
-	z.left = nil
-	z.right = nil
+	z.left = t.tnil
+	z.right = t.tnil
 	z.color = COLOR_RED
-
-	// so far this was regular insertion. now rebalance
 
 	insertFixup(t, z)
 
@@ -95,7 +101,111 @@ func (t *RBT[T]) Insert(value T) error {
 }
 
 func (t *RBT[T]) Delete(value T) error {
-	panic("unimplemetned")
+	panicIfNilTree(t)
+
+	// uninitialized tree
+	if t.root == nil {
+		return errors.New("value not found")
+	}
+
+	// find z
+	z := t.root
+	for z != t.tnil {
+		if value < z.value {
+			z = z.left
+		} else if value > z.value {
+			z = z.right
+		} else {
+			break
+		}
+	}
+	if z == t.tnil {
+		return errors.New("value not found")
+	}
+
+	y := z
+	yorigcolor := getColor(y)
+	var x *RBTNode[T]
+
+	if z.left == t.tnil {
+		x = z.right
+		rbtransplant(t, z, z.right)
+	} else if z.right == t.tnil {
+		x = z.left
+		rbtransplant(t, z, z.left)
+	} else {
+		y = treeMinimumRbt(t, z.right)
+		yorigcolor = getColor(y)
+		x = y.right
+		if y.parent == z {
+			x.parent = y
+		} else {
+			rbtransplant(t, y, y.right)
+			y.right = z.right
+			y.right.parent = y
+		}
+		rbtransplant(t, z, y)
+		y.left = z.left
+		y.left.parent = y
+		y.color = getColor(z)
+	}
+	if yorigcolor == COLOR_BLACK {
+		rbDeleteFixup(t, x)
+	}
+	return nil
+}
+
+func rbDeleteFixup[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {
+	for x != t.root && getColor(x) == COLOR_BLACK {
+		if x == x.parent.left {
+			w := x.parent.right
+			if getColor(w) == COLOR_RED {
+				w.color = COLOR_BLACK
+				x.parent.color = COLOR_RED
+				leftRotate(t, x.parent)
+				w = x.parent.right
+			}
+			if getColor(w.left) == COLOR_BLACK && getColor(w.right) == COLOR_BLACK {
+				w.color = COLOR_RED
+				x = x.parent
+			} else if getColor(w.right) == COLOR_BLACK {
+				w.left.color = COLOR_BLACK
+				w.color = COLOR_RED
+				rightRotate(t, w)
+				w = x.parent.right
+			} else {
+				w.color = getColor(x.parent)
+				x.parent.color = COLOR_BLACK
+				w.right.color = COLOR_BLACK
+				leftRotate(t, x.parent)
+				x = t.root
+			}
+		} else {
+			w := x.parent.left
+			if getColor(w) == COLOR_RED {
+				w.color = COLOR_BLACK
+				x.parent.color = COLOR_RED
+				rightRotate(t, x.parent)
+				w = x.parent.left
+			}
+			if getColor(w.right) == COLOR_BLACK && getColor(w.left) == COLOR_BLACK {
+				w.color = COLOR_RED
+				x = x.parent
+			} else if getColor(w.left) == COLOR_BLACK {
+				w.right.color = COLOR_BLACK
+				w.color = COLOR_RED
+				leftRotate(t, w)
+				w = x.parent.left
+			} else {
+				w.color = getColor(x.parent)
+				x.parent.color = COLOR_BLACK
+				w.left.color = COLOR_BLACK
+				rightRotate(t, x.parent)
+				x = t.root
+			}
+		}
+	}
+	x.color = COLOR_BLACK
 }
 
 func (t *RBT[T]) String() string {
@@ -178,14 +288,18 @@ func (n *RBTNode[T]) ttycolor() string {
 	return n.color
 }
 
+func (n *RBTNode[T]) isSentinel() bool {
+	return n.left == nil && n.right == nil
+}
+
 func leftRotate[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {
 	y := x.right
 	x.right = y.left
-	if y.left != nil {
+	if y.left != t.tnil {
 		y.left.parent = x
 	}
 	y.parent = x.parent
-	if x.parent == nil {
+	if x.parent == t.tnil {
 		t.root = y
 	} else if x == x.parent.left {
 		x.parent.left = y
@@ -199,11 +313,11 @@ func leftRotate[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) {
 func rightRotate[T cmp.Ordered](t *RBT[T], y *RBTNode[T]) {
 	x := y.left
 	y.left = x.right
-	if x.right != nil {
+	if x.right != t.tnil {
 		x.right.parent = y
 	}
 	x.parent = y.parent
-	if y.parent == nil {
+	if y.parent == t.tnil {
 		t.root = x
 	} else if y == y.parent.left {
 		y.parent.left = x
@@ -249,4 +363,24 @@ func insertFixup[T cmp.Ordered](t *RBT[T], z *RBTNode[T]) {
 		}
 	}
 	t.root.color = COLOR_BLACK
+}
+
+// transplant replaces one subtree with another subtree
+func rbtransplant[T cmp.Ordered](t *RBT[T], u *RBTNode[T], v *RBTNode[T]) {
+	// u is root
+	if u.parent == t.tnil {
+		t.root = v
+	} else if u == u.parent.left {
+		u.parent.left = v
+	} else {
+		u.parent.right = v
+	}
+	v.parent = u.parent
+}
+
+func treeMinimumRbt[T cmp.Ordered](t *RBT[T], x *RBTNode[T]) *RBTNode[T] {
+	for x.left != t.tnil {
+		x = x.left
+	}
+	return x
 }

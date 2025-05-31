@@ -61,4 +61,13 @@ func main() {
 	fmt.Println(tree.FormatTree(t3, tree.FormatLinuxTree))
 	fmt.Println(tree.FormatTree(t3, tree.FormatHorizontal))
 	fmt.Println(tree.FormatTree(t3, tree.FormatHorizontalSquared))
+
+	t3.Delete(39)
+	t3.Delete(35)
+	t3.Delete(38)
+	t3.Delete(28)
+	fmt.Println(tree.FormatTree(t3, tree.FormatLinuxTree))
+	fmt.Println(tree.FormatTree(t3, tree.FormatHorizontal))
+	fmt.Println(tree.FormatTree(t3, tree.FormatHorizontalSquared))
+
 }
