@@ -22,18 +22,6 @@ type RBT[T cmp.Ordered] struct {
 	size int
 }
 
-func panicIfNilRBT[T cmp.Ordered](t *RBT[T]) {
-	if t == nil {
-		panic("nil tree")
-	}
-}
-
-func panicIfNilRBTNode[T cmp.Ordered](n *RBTNode[T]) {
-	if n == nil {
-		panic("nil node")
-	}
-}
-
 func NewRBT[T cmp.Ordered]() *RBT[T] {
 	return &RBT[T]{
 		size: 0,
@@ -42,7 +30,7 @@ func NewRBT[T cmp.Ordered]() *RBT[T] {
 }
 
 func (t *RBT[T]) Root() Node[T] {
-	panicIfNilRBT(t)
+	panicIfNilTree(t)
 
 	if t.root == nil {
 		return nil
@@ -50,13 +38,13 @@ func (t *RBT[T]) Root() Node[T] {
 	return t.root
 }
 func (t *RBT[T]) Size() int {
-	panicIfNilRBT(t)
+	panicIfNilTree(t)
 
 	return t.size
 }
 
 func (t *RBT[T]) Insert(value T) error {
-	panicIfNilRBT(t)
+	panicIfNilTree(t)
 
 	if t.root == nil {
 		t.root = &RBTNode[T]{
@@ -111,13 +99,13 @@ func (t *RBT[T]) Delete(value T) error {
 }
 
 func (t *RBT[T]) String() string {
-	panicIfNilRBT(t)
+	panicIfNilTree(t)
 
 	return FormatTree(t, string(FormatHorizontal))
 }
 
 func (t *RBT[T]) Count(value T) int {
-	panicIfNilRBT(t)
+	panicIfNilTree(t)
 
 	if t.root == nil {
 		return 0
