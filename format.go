@@ -85,9 +85,11 @@ func FormatTree[T cmp.Ordered](t Tree[T], formatType string) string {
 	if t == nil {
 		return "nil tree"
 	}
-	if t.Root() == nil {
+
+	if isNilOrSentinel(t.Root()) {
 		return "empty tree"
 	}
+
 	if !slices.Contains(availableFormats, formatType) {
 		formatType = FormatHorizontal
 	}
@@ -109,7 +111,7 @@ func FormatTree[T cmp.Ordered](t Tree[T], formatType string) string {
 }
 
 func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
-	if t.Root().Left() == nil && t.Root().Right() == nil {
+	if isNilOrSentinel(t.Root().Left()) && isNilOrSentinel(t.Root().Right()) {
 		return fmt.Sprint(t.Root().Value())
 	}
 
@@ -139,7 +141,7 @@ func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 			}
 		}
 
-		if n == nil || (n.Left() == nil && n.Right() == nil) {
+		if isNilOrSentinel(n) || (isNilOrSentinel(n.Left()) && isNilOrSentinel(n.Right())) {
 			stack = stack[:len(stack)-1]
 			if len(prefix) != 0 {
 				prefix = prefix[:len(prefix)-1]
@@ -150,10 +152,10 @@ func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 		if cobj.cnt == 0 {
 			l := n.Left()
 			var toprint string
-			if l == nil {
+			if isNilOrSentinel(l) {
 				toprint = "*"
 			} else {
-				toprint = fmt.Sprint(l.Value())
+				toprint = getTtyColoredValue(l)
 			}
 			out += fmt.Sprintf("%s%s %v\n", strings.Join(prefix, ""), _PREFIX_LEFT, toprint)
 			prefix = append(prefix, _EXTRA_LEFT)
@@ -166,10 +168,10 @@ func formatLinuxTree[T cmp.Ordered](t coloredTree[T]) string {
 		} else if cobj.cnt == 1 {
 			r := n.Right()
 			var toprint string
-			if r == nil {
+			if isNilOrSentinel(r) {
 				toprint = "*"
 			} else {
-				toprint = fmt.Sprint(r.Value())
+				toprint = getTtyColoredValue(r)
 			}
 			out += fmt.Sprintf("%s%s %v\n", strings.Join(prefix, ""), _PREFIX_RIGHT, toprint)
 			prefix = append(prefix, _EXTRA_RIGHT)
@@ -452,8 +454,43 @@ type coloredNode[T cmp.Ordered] interface {
 	ttycolor() string
 }
 
+func getTtyColoredValue[T cmp.Ordered](n Node[T]) string {
+	label := fmt.Sprint(n.Value())
+	var color string
+	if c, ok := n.(coloredNode[T]); ok {
+		color = c.ttycolor()
+	}
+	if color == _COLOR_RED {
+		label = ttyRed + fmt.Sprint(n.Value()) + ttyColorReset
+	}
+
+	return label
+}
+
 type nodeWithSentinel[T cmp.Ordered] interface {
 	isSentinel() bool
+}
+
+func isNodeSentinel[T cmp.Ordered](n Node[T]) bool {
+	if n == nil {
+		return false
+	}
+	if s, ok := (n).(nodeWithSentinel[T]); ok {
+		if s.isSentinel() {
+			return true
+		}
+	}
+	return false
+}
+
+func isNilOrSentinel[T cmp.Ordered](n Node[T]) bool {
+	if n == nil {
+		return true
+	}
+	if isNodeSentinel(n) {
+		return true
+	}
+	return false
 }
 
 var ttyColorReset = "\033[0m"
